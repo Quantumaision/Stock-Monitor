@@ -8,7 +8,7 @@ on:
 jobs:
   run-monitor:
     runs-on: ubuntu-latest
-    steps:
+       steps:
       - uses: actions/checkout@v4
 
       - name: Setup Python
@@ -21,7 +21,45 @@ jobs:
           python -m pip install --upgrade pip
           pip install yfinance requests
 
-      - name: Run stock monitor
+      - name: Show repo status (debug)
+        run: |
+          echo "---- pwd ----"
+          pwd
+          echo "---- git status ----"
+          git status --porcelain -b || true
+          echo "---- git rev-parse HEAD ----"
+          git rev-parse HEAD || true
+          echo "---- list root files ----"
+          ls -la
+          echo "---- list files recursively (top 200 lines) ----"
+          ls -laR | sed -n '1,200p' || true
+
+      - name: Show python location and env (debug)
+        run: |
+          which python || where python || true
+          python -V
+          python -c "import sys, os; print('sys.path:', sys.path)"
+
+      - name: Search for placeholder pattern in repo (debug)
+        run: |
+          echo "Searching for literal '***' occurrences..."
+          git grep -n "from \*\*\*" || true
+          git grep -n "\*\*\*" || true
+          echo "Search done."
+
+      - name: Show stock_monitor.py (debug)
+        run: |
+          echo "---- stock_monitor.py contents ----"
+          if [ -f stock_monitor.py ]; then
+            sed -n '1,200p' stock_monitor.py || true
+          else
+            echo "stock_monitor.py not found in repo root"
+            echo "Listing files in repo root:"
+            ls -la
+          fi
+          echo "---- end stock_monitor.py ----"
+
+      - name: Run stock monitor (actual)
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           TICKERS: ${{ secrets.TICKERS }}
@@ -29,4 +67,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           NEWS_HOURS: '72'
-        run: python stock_monitor.py
+        run: |
+          echo "Running python stock_monitor.py"
+          python -u stock_monitor.py
+
