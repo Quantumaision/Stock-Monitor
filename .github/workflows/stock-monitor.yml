@@ -2,14 +2,15 @@ name: Stock Monitor (scheduled + manual)
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # runs daily at 00:00 UTC (08:00 Perth)
-  workflow_dispatch:      # allows manual run from the Actions tab
+    - cron: '0 0 * * *'  # daily at 00:00 UTC (08:00 Perth)
+  workflow_dispatch:
 
 jobs:
   run-monitor:
     runs-on: ubuntu-latest
-       steps:
-      - uses: actions/checkout@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -38,7 +39,7 @@ jobs:
         run: |
           which python || where python || true
           python -V
-          python -c "import sys, os; print('sys.path:', sys.path)"
+          python -c "import sys; print('sys.path:', sys.path)"
 
       - name: Search for placeholder pattern in repo (debug)
         run: |
@@ -70,4 +71,3 @@ jobs:
         run: |
           echo "Running python stock_monitor.py"
           python -u stock_monitor.py
-
