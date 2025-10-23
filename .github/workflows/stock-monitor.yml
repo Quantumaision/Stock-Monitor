@@ -1,0 +1,32 @@
+name: Stock Monitor (scheduled + manual)
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # runs daily at 00:00 UTC (08:00 Perth)
+  workflow_dispatch:      # allows manual run from the Actions tab
+
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance requests
+
+      - name: Run stock monitor
+        env:
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          TICKERS: ${{ secrets.TICKERS }}
+          REPORT_MODE: ${{ secrets.REPORT_MODE }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          NEWS_HOURS: '72'
+        run: python stock_monitor.py
