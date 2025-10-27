@@ -25,8 +25,9 @@ def get_stock_summary(ticker):
         stock = yf.Ticker(ticker)
         info = stock.info
         price = info.get("regularMarketPrice")
-        change = info.get("regularMarketChangePercent")
-        return f"{ticker}: ${price:.2f} ({change:+.2f}%)"
+        change = info.get("regularMarketChangePercent", 0)
+        name = "S&P 500" if ticker == "^GSPC" else ticker
+        return f"{name}: ${price:.2f} ({change:+.2f}%)"
     except Exception as e:
         return f"{ticker}: Error fetching data ({e})"
 
